@@ -5,6 +5,7 @@ subdir-ccflags-y += -Dzjs_malloc=malloc
 subdir-ccflags-y += -DBUILD_MODULE_PME -DBUILD_MODULE_SENSOR
 
 obj-y += main.o
+obj-y += algo.o
 obj-y += CuriePME.o
 obj-y += ../../x86/src/zjs_common.o
 obj-y += ../../x86/src/zjs_ipm.o

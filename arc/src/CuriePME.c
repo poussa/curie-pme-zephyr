@@ -80,8 +80,6 @@ uint16_t CuriePME_learn(uint8_t *pattern_vector, int32_t vector_length, uint16_t
 
 uint16_t CuriePME_classify(uint8_t *pattern_vector, int32_t vector_length)
 {
-
-
 	uint8_t *current_vector = pattern_vector;
 	uint8_t index = 0;
 
@@ -93,8 +91,38 @@ uint16_t CuriePME_classify(uint8_t *pattern_vector, int32_t vector_length)
 	}
 	regWrite16( LCOMP , current_vector[vector_length - 1] );
 
-	return  ( regRead16(CAT) & CAT_CATEGORY);
+	regRead16(IDX_DIST); //Sort by distance by David Florey
 
+	return  ( regRead16(CAT) & CAT_CATEGORY);
+}
+
+void CuriePME_bcast_vector(uint8_t *pattern_vector, int32_t vector_length)
+{
+	uint8_t *current_vector = pattern_vector;
+	uint8_t index = 0;
+
+	if (vector_length > maxVectorSize)
+		vector_length = maxVectorSize;
+
+	for (index = 0; index < (vector_length - 1); index++)
+	{
+		regWrite16(COMP, current_vector[index]);
+	}
+	regWrite16( LCOMP , current_vector[vector_length - 1] );
+}
+
+uint16_t CuriePME_classify_next(uint16_t *distance, uint16_t *nid)
+{
+	if (distance)
+		*distance = regRead16(IDX_DIST);
+
+	uint16_t category = regRead16(CAT) & CAT_CATEGORY;
+
+	// NID must be read after CAT
+	if (nid)
+		*nid = regRead16(NID);
+
+	return category;
 }
 
 // write vector is used for kNN recognition and does not alter

@@ -68,6 +68,8 @@ void CuriePME_configure( 	uint16_t global_context,
 
 uint16_t CuriePME_learn(uint8_t *pattern_vector, int32_t vector_length, uint16_t category);
 uint16_t CuriePME_classify(uint8_t *pattern_vector, int32_t vector_length);
+void CuriePME_bcast_vector(uint8_t *pattern_vector, int32_t vector_length);
+uint16_t CuriePME_classify_next(uint16_t *distance, uint16_t *nid);
 
 uint16_t CuriePME_readNeuron( int32_t neuronID, neuronData *data_array);
 

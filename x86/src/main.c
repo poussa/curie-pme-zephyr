@@ -25,6 +25,8 @@
 #define PME_IPM_TIMEOUT_TICKS 5000
 #define PME_DEFAULT_SAMPLING_FREQ 100
 
+char *sensor_name = "bmi160";
+
 static struct k_sem sync_sem;
 
 uint32_t sensor_print = 0;
@@ -66,6 +68,8 @@ static int shell_cmd_sensor(int argc, char *argv[])
         return 0;        
     }
 
+    send.data.sensor.controller = sensor_name;
+
     if (zjs_ipm_send(MSG_ID_SENSOR, &send) != 0) {
         printk("PME: IPM send failed\n");
         return ERROR_IPM_OPERATION_FAILED;
@@ -90,28 +94,41 @@ static int shell_cmd_pme(int argc, char *argv[])
 
     if (!strcmp(argv[1], "init")) {
         send.type = TYPE_PME_INIT;
-    } else if (!strcmp(argv[1], "learn")) {
-        if (argc != 6) {
-            printk("usage: %s v1 v2 v3 category\n", argv[1]);
+    } else if (!strcmp(argv[1], "learn-test")) {
+        if (argc != 7) {
+            printk("usage: %s v1 v2 v3 v4 category\n", argv[1]);
             return 0;
         }
-        send.type = TYPE_PME_LEARN;
+        send.type = TYPE_PME_LEARN_TEST;
         send.data.pme.vector[0] = atoi(argv[2]);
         send.data.pme.vector[1] = atoi(argv[3]);
         send.data.pme.vector[2] = atoi(argv[4]);
-        send.data.pme.count = 3;
-        send.data.pme.category = atoi(argv[5]);
+        send.data.pme.vector[3] = atoi(argv[5]);
+        send.data.pme.count = 4;
+        send.data.pme.category = atoi(argv[6]);
 
-    } else if (!strcmp(argv[1], "classify")) {
-        if (argc != 5) {
-            printk("usage: %s v1 v2 v3\n", argv[1]);
+    } else if (!strcmp(argv[1], "classify-test")) {
+        if (argc != 6) {
+            printk("usage: %s v1 v2 v3 v4\n", argv[1]);
         }
-        send.type = TYPE_PME_CLASSIFY;
+        send.type = TYPE_PME_CLASSIFY_TEST;
         send.data.pme.vector[0] = atoi(argv[2]);
         send.data.pme.vector[1] = atoi(argv[3]);
         send.data.pme.vector[2] = atoi(argv[4]);
-        send.data.pme.count = 3;
+        send.data.pme.vector[3] = atoi(argv[5]);
+        send.data.pme.count = 4;
 
+    } else if (!strcmp(argv[1], "learn")) {
+        send.type = TYPE_PME_LEARN_IMU;
+        if (argc != 3) {
+            printk("shell: invalid usage\n");
+            return 0;        
+        }
+        send.data.pme.category = atoi(argv[2]);
+    } else if (!strcmp(argv[1], "classify")) {
+        send.type = TYPE_PME_CLASSIFY_IMU;
+    } else if (!strcmp(argv[1], "read")) {
+        send.type = TYPE_PME_READ_NEURONS;
     } else {
         printk("shell: invalid usage\n");
         return 0;        
@@ -175,14 +192,14 @@ void pme_ipm_callback(void *context, uint32_t id, volatile void *data)
         k_sem_give(&sync_sem);
     } 
 
-    if (msg->type == TYPE_PME_CLASSIFY) {
+    if (msg->type == TYPE_PME_CLASSIFY_TEST || msg->type == TYPE_PME_CLASSIFY_IMU) {
         printf("PME: classify category=%d\n", msg->data.pme.category);
     } 
 }
 
 static struct shell_cmd commands[] = {
         { "sensor", shell_cmd_sensor, "init start stop print" },
-        { "pme", shell_cmd_pme, "init learn classify [v1 v2 v3]" },
+        { "pme", shell_cmd_pme, "init | learn category | classify" },
         { NULL, NULL, NULL }
 };
 

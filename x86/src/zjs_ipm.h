@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Intel Corporation.
+// Copyright (c) 2016-2017, Intel Corporation.
 
 #ifndef __zjs_ipm_h__
 #define __zjs_ipm_h__
@@ -15,7 +15,6 @@
 #define MSG_ID_I2C                                         0x02
 #define MSG_ID_GLCD                                        0x03
 #define MSG_ID_SENSOR                                      0x04
-#define MSG_ID_PME                                         0x05
 
 // Message flags
 enum {
@@ -30,6 +29,7 @@ enum {
 #define ERROR_IPM_INVALID_PARAMETER                        0x0002
 #define ERROR_IPM_OPERATION_FAILED                         0x0003
 #define ERROR_IPM_OPERATION_NOT_ALLOWED                    0x0004
+#define MSG_ID_PME                                         0x0005
 
 // Message Types
 
@@ -73,8 +73,12 @@ enum {
 
 // PME
 #define TYPE_PME_INIT                                      0x0040
-#define TYPE_PME_LEARN                                     0x0041
-#define TYPE_PME_CLASSIFY                                  0x0042
+#define TYPE_PME_LEARN_TEST                                0x0041
+#define TYPE_PME_CLASSIFY_TEST                             0x0042
+#define TYPE_PME_LEARN_IMU                                 0x0043
+#define TYPE_PME_CLASSIFY_IMU                              0x0044
+#define TYPE_PME_READ_NEURONS                              0x0045
+#define TYPE_PME_WRITE_NEURONS                             0x0046
 
 typedef struct zjs_ipm_message {
     uint32_t id;
@@ -114,6 +118,7 @@ typedef struct zjs_ipm_message {
         // SENSOR
         struct sensor_data {
             enum sensor_channel channel;
+            char *controller;
             uint32_t pin;
             uint32_t frequency;
             union sensor_reading {
@@ -133,6 +138,9 @@ typedef struct zjs_ipm_message {
             uint8_t  vector[128];
             uint16_t count;
             uint16_t category;
+            uint16_t context;
+            uint16_t influence;
+            uint16_t minInfluence;
         } pme;
     } data;
 } zjs_ipm_message_t;
