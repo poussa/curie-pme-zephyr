@@ -14,8 +14,8 @@ static uint8_t sample_buffer[SAMPLE_BUFFER_SIZE];
 
 static int sample_i = 0;
 
-static int values_per_sample;
-static int samples_per_vector;
+static uint32_t values_per_sample;
+static uint32_t samples_per_vector;
 
 static uint8_t average(uint8_t *input, uint32_t pos, uint32_t step, uint32_t count)
 {
@@ -38,7 +38,7 @@ static void undersample(uint8_t *input, uint32_t samples, uint8_t *output)
 	uint32_t oi = 0; // outout position
 	uint32_t count = samples / samples_per_vector;
 
-	printf("%s: samples=%ud samples_per_vector=%ud count=%d\n", 
+	printf("%s: samples=%lu samples_per_vector=%ld count=%ld\n", 
 		__FUNCTION__, samples, samples_per_vector, count);
 
 	for (int i = 0; i < samples_per_vector; i++) {
@@ -79,7 +79,7 @@ uint32_t pme_process_sample(uint8_t *data, uint32_t data_len, uint8_t *vector)
 
 uint16_t pme_learn(uint8_t *vector, uint32_t len, uint16_t category) 
 {
-	printf("%s: category=%d is %d byte vector\n", __FUNCTION__, category, len);
+	printf("%s: category=%d is %lu byte vector\n", __FUNCTION__, category, len);
 	for (int i = 0; i < len; i++)
 		printf("%d ", vector[i]);
 	printf("\n");
@@ -88,7 +88,7 @@ uint16_t pme_learn(uint8_t *vector, uint32_t len, uint16_t category)
 
 uint16_t pme_classify(uint8_t *vector, uint32_t len) 
 {
-	printf("%s: %d byte vector\n", __FUNCTION__, len);
+	printf("%s: %lu byte vector\n", __FUNCTION__, len);
 	for (int i = 0; i < len; i++)
 		printf("%d ", vector[i]);
 	printf("\n");
